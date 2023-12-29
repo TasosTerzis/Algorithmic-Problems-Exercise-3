@@ -1,18 +1,18 @@
 # code to reduce dimension of images
 import keras as kr
 import numpy as np
-import pandas as pd
-import tensorflow as tf
 import argparse
 import struct
 
-# command line looks like: python reduce.py –d <dataset> -q <queryset> -od <output_dataset_file> -oq <output_query_file>
+# command line looks like: python3 reduce.py –d input/10k_images.dat -q input/100from60k.dat -od input/10k_images_REDUCED.dat -oq input/100from60k_REDUCED.dat
 # read in command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--dataset', help='dataset file', required=True)
 parser.add_argument('-q', '--queryset', help='queryset file', required=True)
-parser.add_argument('-od', '--output_dataset_file', help='output dataset file', required=True)
-parser.add_argument('-oq', '--output_query_file', help='output query file', required=True)
+parser.add_argument('-od', '--output_dataset_file',
+                    help='output dataset file', required=True)
+parser.add_argument('-oq', '--output_query_file',
+                    help='output query file', required=True)
 args = parser.parse_args()
 
 # make a function to get the MNIST data from a file and return it as a numpy array
@@ -34,3 +34,41 @@ queryset, q_magic_number, q_num_images, q_rows, q_cols = read_mnist_images(args.
 
 # load the encoder model
 encoder = kr.models.load_model('encoder.h5')
+
+# preprocess the dataset and queryset
+dataset = dataset.reshape(-1, 28, 28, 1)
+queryset = queryset.reshape(-1, 28, 28, 1)
+
+#convert the dataset and queryset to float32
+dataset = dataset.astype('float32')
+queryset = queryset.astype('float32')
+
+# normalize the dataset and queryset
+max_value = np.max(dataset) # 255
+dataset = dataset / max_value
+queryset = queryset / max_value
+
+# use the encoder model to reduce the dimension of the dataset and queryset
+output_dataset = encoder.predict(dataset)
+output_queryset = encoder.predict(queryset)
+
+# print the shape of the output dataset and queryset
+print(output_dataset.shape)
+print(output_queryset.shape)
+
+# restore the dataset and queryset
+dataset = dataset * max_value
+queryset = queryset * max_value
+
+# convert the dataset and queryset to uint8
+dataset = dataset.astype('uint8')
+queryset = queryset.astype('uint8')
+
+# Write the output files
+with open(args.output_dataset_file, 'wb') as f:
+    f.write(struct.pack('>IIII', d_magic_number, d_num_images, 28, 1))
+    f.write(output_dataset.tobytes())
+    
+with open(args.output_query_file, 'wb') as f:
+    f.write(struct.pack('>IIII', q_magic_number, q_num_images, 28, 1))
+    f.write(output_queryset.tobytes())
