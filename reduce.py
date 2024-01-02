@@ -1,4 +1,5 @@
 # code to reduce dimension of images
+import matplotlib.pyplot as plt
 import keras as kr
 import numpy as np
 import argparse
@@ -35,15 +36,15 @@ queryset, q_magic_number, q_num_images, q_rows, q_cols = read_mnist_images(args.
 # load the encoder model
 encoder = kr.models.load_model('encoder.h5')
 
-# preprocess the dataset and queryset
+# # preprocess the dataset and queryset
 dataset = dataset.reshape(-1, 28, 28, 1)
 queryset = queryset.reshape(-1, 28, 28, 1)
 
-#convert the dataset and queryset to float32
+# #convert the dataset and queryset to float32
 dataset = dataset.astype('float32')
 queryset = queryset.astype('float32')
 
-# normalize the dataset and queryset
+# # normalize the dataset and queryset
 max_value = np.max(dataset) # 255
 dataset = dataset / max_value
 queryset = queryset / max_value
@@ -56,6 +57,8 @@ output_queryset = encoder.predict(queryset)
 print(output_dataset.shape)
 print(output_queryset.shape)
 
+#######################################################################################
+
 # restore the dataset and queryset
 dataset = dataset * max_value
 queryset = queryset * max_value
@@ -64,11 +67,66 @@ queryset = queryset * max_value
 dataset = dataset.astype('uint8')
 queryset = queryset.astype('uint8')
 
-# Write the output files
+########################################################################################
+# TESTING
+########################################################################################
+
+# # preprocess the dataset and queryset so that they can be decoded
+# dataset = dataset.reshape(-1, 28, 28, 1)
+# queryset = queryset.reshape(-1, 28, 28, 1)
+
+# # convert the dataset and queryset to float32
+# dataset = dataset.astype('float32')
+# queryset = queryset.astype('float32')
+
+# # normalize the dataset and queryset
+# max_value = np.max(dataset) # 255
+# dataset = dataset / max_value
+# queryset = queryset / max_value
+
+# # use the decoder model to restore the dataset and queryset
+# dataset = decoder.predict(output_dataset)
+# queryset = decoder.predict(output_queryset)
+
+# # restore the dataset and queryset
+# dataset = dataset * max_value
+# queryset = queryset * max_value
+
+# # convert the dataset and queryset to uint8
+# dataset = dataset.astype('uint8')
+# queryset = queryset.astype('uint8')
+
+
+# # Plot or display the images
+# plt.figure(figsize=(10, 4))
+
+# # Display a few reconstructed images from the first dataset
+# for i in range(5):
+#     plt.subplot(2, 5, i + 1)
+#     plt.imshow(dataset[i], cmap='gray')
+#     plt.axis('off')
+
+# # Display a few reconstructed images from the second dataset
+# for i in range(5):
+#     plt.subplot(2, 5, 5 + i + 1)
+#     plt.imshow(queryset[i], cmap='gray')
+#     plt.axis('off')
+
+# plt.tight_layout()
+# plt.show()
+
+########################################################################################
+
+
+
+# save the output dataset and queryset to output files
 with open(args.output_dataset_file, 'wb') as f:
-    f.write(struct.pack('>IIII', d_magic_number, d_num_images, 28, 1))
+    f.write(struct.pack('>IIII', d_magic_number, d_num_images, d_rows, 1))
     f.write(output_dataset.tobytes())
-    
+
 with open(args.output_query_file, 'wb') as f:
-    f.write(struct.pack('>IIII', q_magic_number, q_num_images, 28, 1))
+    f.write(struct.pack('>IIII', q_magic_number, q_num_images, q_rows, 1))
     f.write(output_queryset.tobytes())
+
+
+    
