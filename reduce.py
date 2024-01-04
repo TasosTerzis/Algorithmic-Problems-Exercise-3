@@ -61,22 +61,27 @@ output_queryset = output_queryset * 255
 output_dataset = output_dataset.astype('uint8')
 output_queryset = output_queryset.astype('uint8')
 
-# # print the first 5 images as pixel values
-# print(output_dataset[:5])
-# print(output_queryset[:5])
+# print the first 5 images as pixel values
+print(output_dataset[:5])
+print(output_queryset[:5])
 
-# # print the shape of the output_dataset and output_queryset
-# print(output_dataset.shape)
-# print(output_queryset.shape)
+# print the shape of the output_dataset and output_queryset
+print(output_dataset.shape)
+print(output_queryset.shape)
 
 
 # convert the output_dataset and output_queryset to uint8
-# output_dataset = output_dataset.astype('uint8')
-# output_queryset = output_queryset.astype('uint8')
+output_dataset = output_dataset.astype('float32')
+output_queryset = output_queryset.astype('float32')
+
+# normalize the output_dataset and output_queryset
+max_value = 255
+output_dataset = output_dataset / max_value
+output_queryset = output_queryset / max_value
 
 decoder = kr.models.load_model('decoder.h5')
 
-# use the decoder model to restore the dimension of the dataset and queryset
+# # use the decoder model to restore the dimension of the dataset and queryset
 temp_dataset = decoder.predict(output_dataset)
 temp_queryset = decoder.predict(output_queryset)
 
