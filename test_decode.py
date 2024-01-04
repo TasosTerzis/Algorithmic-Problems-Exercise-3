@@ -25,6 +25,9 @@ reduced_queryset, q_magic_number, q_num_images, q_rows, q_cols = read_mnist_imag
 
 print(d_magic_number, d_num_images, d_rows, d_cols)
 
+# print the first images as pixel values
+print(reduced_dataset[0])
+print(reduced_queryset[0])
 
 # convert the dataset and queryset to float32
 reduced_dataset = reduced_dataset.astype('float32')
@@ -34,11 +37,6 @@ reduced_queryset = reduced_queryset.astype('float32')
 max_value = 255
 reduced_dataset = reduced_dataset / max_value
 reduced_queryset = reduced_queryset / max_value
-
-# print the first images as pixel values
-print(reduced_dataset[0])
-print(reduced_queryset[0])
-
 
 decoder = kr.models.load_model('decoder.h5')
 

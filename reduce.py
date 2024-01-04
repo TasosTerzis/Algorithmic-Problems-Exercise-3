@@ -61,52 +61,9 @@ output_queryset = output_queryset * 255
 output_dataset = output_dataset.astype('uint8')
 output_queryset = output_queryset.astype('uint8')
 
-# print the first 5 images as pixel values
-print(output_dataset[:5])
-print(output_queryset[:5])
-
-# print the shape of the output_dataset and output_queryset
-print(output_dataset.shape)
-print(output_queryset.shape)
-
-
-# convert the output_dataset and output_queryset to uint8
-output_dataset = output_dataset.astype('float32')
-output_queryset = output_queryset.astype('float32')
-
-# normalize the output_dataset and output_queryset
-max_value = 255
-output_dataset = output_dataset / max_value
-output_queryset = output_queryset / max_value
-
-decoder = kr.models.load_model('decoder.h5')
-
-# # use the decoder model to restore the dimension of the dataset and queryset
-temp_dataset = decoder.predict(output_dataset)
-temp_queryset = decoder.predict(output_queryset)
-
-# restore the temp_dataset and temp_queryset
-temp_dataset = temp_dataset * 255
-temp_queryset = temp_queryset * 255
-
-# convert the temp_dataset and temp_queryset to uint8
-temp_dataset = temp_dataset.astype('uint8')
-temp_queryset = temp_queryset.astype('uint8')
-
-# Display a few reconstructed images from the restored dataset
-for i in range(5):
-    plt.subplot(2, 5, i + 1)
-    plt.imshow(temp_dataset[i], cmap='gray')
-    plt.axis('off')
-    
-# Display a few reconstructed images from the restored queryset
-for i in range(5):
-    plt.subplot(2, 5, 5 + i + 1)
-    plt.imshow(temp_queryset[i], cmap='gray')
-    plt.axis('off')
-    
-plt.show()
-plt.axis('off')
+# print the first images as pixel values
+print(output_dataset[0])
+print(output_queryset[0])
 
 # save the output dataset and queryset to output files
 with open(args.output_dataset_file, 'wb') as f:
