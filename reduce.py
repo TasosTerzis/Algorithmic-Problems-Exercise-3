@@ -45,7 +45,7 @@ dataset = dataset.astype('float32')
 queryset = queryset.astype('float32')
 
 # # normalize the dataset and queryset
-max_value = np.max(dataset) # 255
+max_value = 255
 dataset = dataset / max_value
 queryset = queryset / max_value
 
@@ -53,80 +53,61 @@ queryset = queryset / max_value
 output_dataset = encoder.predict(dataset)
 output_queryset = encoder.predict(queryset)
 
-# print the shape of the output dataset and queryset
-print(output_dataset.shape)
-print(output_queryset.shape)
+# restore the output_dataset and output_queryset
+output_dataset = output_dataset * 255
+output_queryset = output_queryset * 255
 
-#######################################################################################
+# convert the output_dataset and output_queryset to uint8
+output_dataset = output_dataset.astype('uint8')
+output_queryset = output_queryset.astype('uint8')
 
-# restore the dataset and queryset
-dataset = dataset * max_value
-queryset = queryset * max_value
+# # print the first 5 images as pixel values
+# print(output_dataset[:5])
+# print(output_queryset[:5])
 
-# convert the dataset and queryset to uint8
-dataset = dataset.astype('uint8')
-queryset = queryset.astype('uint8')
-
-########################################################################################
-# TESTING
-########################################################################################
-
-# # preprocess the dataset and queryset so that they can be decoded
-# dataset = dataset.reshape(-1, 28, 28, 1)
-# queryset = queryset.reshape(-1, 28, 28, 1)
-
-# # convert the dataset and queryset to float32
-# dataset = dataset.astype('float32')
-# queryset = queryset.astype('float32')
-
-# # normalize the dataset and queryset
-# max_value = np.max(dataset) # 255
-# dataset = dataset / max_value
-# queryset = queryset / max_value
-
-# # use the decoder model to restore the dataset and queryset
-# dataset = decoder.predict(output_dataset)
-# queryset = decoder.predict(output_queryset)
-
-# # restore the dataset and queryset
-# dataset = dataset * max_value
-# queryset = queryset * max_value
-
-# # convert the dataset and queryset to uint8
-# dataset = dataset.astype('uint8')
-# queryset = queryset.astype('uint8')
+# # print the shape of the output_dataset and output_queryset
+# print(output_dataset.shape)
+# print(output_queryset.shape)
 
 
-# # Plot or display the images
-# plt.figure(figsize=(10, 4))
+# convert the output_dataset and output_queryset to uint8
+# output_dataset = output_dataset.astype('uint8')
+# output_queryset = output_queryset.astype('uint8')
 
-# # Display a few reconstructed images from the first dataset
-# for i in range(5):
-#     plt.subplot(2, 5, i + 1)
-#     plt.imshow(dataset[i], cmap='gray')
-#     plt.axis('off')
+decoder = kr.models.load_model('decoder.h5')
 
-# # Display a few reconstructed images from the second dataset
-# for i in range(5):
-#     plt.subplot(2, 5, 5 + i + 1)
-#     plt.imshow(queryset[i], cmap='gray')
-#     plt.axis('off')
+# use the decoder model to restore the dimension of the dataset and queryset
+temp_dataset = decoder.predict(output_dataset)
+temp_queryset = decoder.predict(output_queryset)
 
-# plt.tight_layout()
-# plt.show()
+# restore the temp_dataset and temp_queryset
+temp_dataset = temp_dataset * 255
+temp_queryset = temp_queryset * 255
 
-########################################################################################
+# convert the temp_dataset and temp_queryset to uint8
+temp_dataset = temp_dataset.astype('uint8')
+temp_queryset = temp_queryset.astype('uint8')
 
-
+# Display a few reconstructed images from the restored dataset
+for i in range(5):
+    plt.subplot(2, 5, i + 1)
+    plt.imshow(temp_dataset[i], cmap='gray')
+    plt.axis('off')
+    
+# Display a few reconstructed images from the restored queryset
+for i in range(5):
+    plt.subplot(2, 5, 5 + i + 1)
+    plt.imshow(temp_queryset[i], cmap='gray')
+    plt.axis('off')
+    
+plt.show()
+plt.axis('off')
 
 # save the output dataset and queryset to output files
 with open(args.output_dataset_file, 'wb') as f:
-    f.write(struct.pack('>IIII', d_magic_number, d_num_images, d_rows, 1))
+    f.write(struct.pack('>IIII', d_magic_number, d_num_images, 28, 1))
     f.write(output_dataset.tobytes())
 
 with open(args.output_query_file, 'wb') as f:
-    f.write(struct.pack('>IIII', q_magic_number, q_num_images, q_rows, 1))
+    f.write(struct.pack('>IIII', q_magic_number, q_num_images, 28, 1))
     f.write(output_queryset.tobytes())
-
-
-    

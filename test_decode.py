@@ -23,42 +23,49 @@ reduced_queryset_file = 'input/100from60k_REDUCED.dat'  # Change this path to yo
 reduced_dataset, d_magic_number, d_num_images, d_rows, d_cols = read_mnist_images(reduced_dataset_file)
 reduced_queryset, q_magic_number, q_num_images, q_rows, q_cols = read_mnist_images(reduced_queryset_file)
 
-# Load the decoder model
-decoder = kr.models.load_model('decoder.h5')  # Replace 'decoder.h5' with your decoder model filename
+print(d_magic_number, d_num_images, d_rows, d_cols)
 
-# # Reshape the reduced datasets for processing
-# reduced_dataset = reduced_dataset.reshape(-1, reduced_dataset.shape[1], reduced_dataset.shape[2], 1)
-# reduced_queryset = reduced_queryset.reshape(-1, reduced_queryset.shape[1], reduced_queryset.shape[2], 1)
 
-# Convert the reduced datasets to float32 and normalize
-max_value = np.max(reduced_dataset)
-reduced_dataset = reduced_dataset.astype('float32') / max_value
-reduced_queryset = reduced_queryset.astype('float32') / max_value
+# convert the dataset and queryset to float32
+reduced_dataset = reduced_dataset.astype('float32')
+reduced_queryset = reduced_queryset.astype('float32')
 
-# Use the decoder model to restore the dataset and queryset
-restored_dataset = decoder.predict(reduced_dataset)
-restored_queryset = decoder.predict(reduced_queryset)
+# normalize the dataset and queryset
+max_value = 255
+reduced_dataset = reduced_dataset / max_value
+reduced_queryset = reduced_queryset / max_value
 
-# Restore the datasets to their original scale
-restored_dataset = (restored_dataset * max_value).astype('uint8')
-restored_queryset = (restored_queryset * max_value).astype('uint8')
+# print the first images as pixel values
+print(reduced_dataset[0])
+print(reduced_queryset[0])
 
-# Display the reconstructed images
-plt.figure(figsize=(10, 4))
+
+decoder = kr.models.load_model('decoder.h5')
+
+# use the decoder model to restore the dimension of the dataset and queryset
+temp_dataset = decoder.predict(reduced_dataset)
+temp_queryset = decoder.predict(reduced_queryset)
+
+# restore the temp_dataset and temp_queryset
+temp_dataset = temp_dataset * 255
+temp_queryset = temp_queryset * 255
+
+# convert the temp_dataset and temp_queryset to uint8
+temp_dataset = temp_dataset.astype('uint8')
+temp_queryset = temp_queryset.astype('uint8')
 
 # Display a few reconstructed images from the restored dataset
 for i in range(5):
     plt.subplot(2, 5, i + 1)
-    plt.imshow(restored_dataset[i], cmap='gray')
+    plt.imshow(temp_dataset[i], cmap='gray')
     plt.axis('off')
 
 # Display a few reconstructed images from the restored queryset
 for i in range(5):
     plt.subplot(2, 5, 5 + i + 1)
-    plt.imshow(restored_queryset[i], cmap='gray')
+    plt.imshow(temp_queryset[i], cmap='gray')
     plt.axis('off')
 
-plt.tight_layout()
 plt.show()
-
+plt.axis('off')
 
