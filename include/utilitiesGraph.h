@@ -7,7 +7,7 @@
 #include "./image.h"
 #include "./dataset.h"
 
-#define T 7
+#define T 10
 
 std::map<double, Image *> graphNNSearch(Graph &, Image &, int, int, int);
 std::map<double, Image *> bruteForce(DataSet&, Image&, int);
