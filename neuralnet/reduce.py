@@ -34,7 +34,7 @@ dataset, d_magic_number, d_num_images, d_rows, d_cols = read_mnist_images(args.d
 queryset, q_magic_number, q_num_images, q_rows, q_cols = read_mnist_images(args.queryset)
 
 # load the encoder model
-encoder = kr.models.load_model('encoder.h5')
+encoder = kr.models.load_model('neuralnet/models/encoder.h5')
 
 # # preprocess the dataset and queryset
 dataset = dataset.reshape(-1, 28, 28, 1)

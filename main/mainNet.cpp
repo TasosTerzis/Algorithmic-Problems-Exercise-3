@@ -57,13 +57,6 @@ int main(int argc, char **argv) {
     std::cout << "Dimension: " << dimension << std::endl;
     std::cout << "Number of images: " << num_images << std::endl;
 
-    // create the graph, based on the user's choice (GNNS or MRNG)
-    Graph *graph;
-    if (m == 1)
-        graph = new Graph(*input_set, k);
-    else
-        graph = new Graph(*input_set, k, l);
-    std::cout << "\nGraph created" << std::endl;
 
     // start the loop that asks for multiple program executions
     bool running_flag = true;
@@ -93,14 +86,23 @@ int main(int argc, char **argv) {
 
         // use reduce.py to create reduced query set and dataset
         // command line looks like: python3 reduce.py –d input/10k_images.dat -q input/100from60k.dat -od input/10k_images_REDUCED.dat -oq input/100from60k_REDUCED.dat
-        std::string input_file_REDUCED = "../input/dataset_REDUCED.dat";
-        std::string query_file_REDUCED = "../input/query_REDUCED.dat";
-        std::string command = "python3 reduce.py -d " + input_file + " -q " + query_file + " -od  " + input_file_REDUCED + " -oq " + query_file_REDUCED;
+        std::string input_file_REDUCED = "input/dataset_REDUCED.dat";
+        std::string query_file_REDUCED = "input/query_REDUCED.dat";
+        std::string command = "python3 neuralnet/reduce.py -d " + input_file + " -q " + query_file + " -od  " + input_file_REDUCED + " -oq " + query_file_REDUCED;
+        printf("%s\n", command.c_str());
         system(command.c_str());
 
         // create the reduced dataset and query set
         DataSet *reduced_input_set = new DataSet(input_file_REDUCED);
         DataSet *reduced_query_set = new DataSet(query_file_REDUCED);
+
+        // create the graph, based on the user's choice (GNNS or MRNG)
+        Graph *graph;
+        if (m == 1)
+            graph = new Graph(*reduced_input_set, k);
+        else
+            graph = new Graph(*reduced_input_set, k, l);
+        std::cout << "\nGraph created" << std::endl;
 
 
         // print to output file
@@ -194,6 +196,7 @@ int main(int argc, char **argv) {
         // free the reduced input set
         delete reduced_input_set;
 
+        delete graph;
         // ask if user wants to continue 
         std::string answer;
         std::cout << "Do you want to continue? (y/n): ";
@@ -207,7 +210,6 @@ int main(int argc, char **argv) {
 
     // Delete the dataset and the graph
     delete input_set;
-    delete graph;
     return 0;
     
 }

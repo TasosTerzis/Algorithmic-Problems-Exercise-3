@@ -41,8 +41,7 @@ EXEC_NET = mainNet
 ARGS_LSH = -d $(INPUT)/60k_images.dat -q $(INPUT)/100from10k.dat -k 4 -L 30 -o $(OUTPUT)/lsh.log -N 1 -R 2000
 ARGS_CUBE = -d $(INPUT)/60k_images.dat -q $(INPUT)/100from10k.dat -k 14 -M 7200 -probes 8840 -o $(OUTPUT)/cube.log -N 1 -R 2500
 ARGS_GRAPH = -d $(INPUT)/10k_images.dat -q $(INPUT)/100from60k.dat -k 50 -E 35 -R 6 -N 1 -l 20 -m 1 -o $(OUTPUT)/graph.log
-ARGS_NET = -d $(INPUT)/10k_images.dat -q $(INPUT)/100from60k.dat -k 50 -E 35 -R 6 -N 1 -l 20 -m 1 -o $(OUTPUT)/graph.log
-ARGS_GRAPH = -d $(INPUT)/10k_REDUCED.dat -q $(INPUT)/100from60k_REDUCED.dat -k 50 -E 35 -R 10 -N 1 -l 300 -m 2 -o $(OUTPUT)/graph.log
+ARGS_NET = -d $(INPUT)/10k_images.dat -q $(INPUT)/100from60k.dat -k 50 -E 35 -R 6 -N 3 -l 300 -m 2 -o $(OUTPUT)/graph.log
 
 # Create rules to build object files in the obj/ directory
 $(OBJ)%.o: $(MAIN)/%.cpp
