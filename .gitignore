@@ -1,0 +1,6 @@
+.vscode
+*.o
+LSHmain
+output/output.txt
+notes.txt
+mainGnns
