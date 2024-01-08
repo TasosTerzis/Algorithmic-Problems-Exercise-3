@@ -65,7 +65,7 @@ Graph::Graph(DataSet &dataset, int k, int I){
         // Rp theoretically contains all the images of the dataset except p, and is sorted by distance from p
         // However, for efficiency reasons, we get just a subset of Rp, by using kNearestNeighbour of LSH. set k to 1% of the dataset size 
         Image *p = dataset.getImage(i);
-        std::map <double, Image *> Rp = kNearestNeighbour(*hash, *p, 0.01 * dataset.getNumImages());
+        std::map <double, Image *> Rp = kNearestNeighbour(*hash, *p, PERCENTAGE * dataset.getNumImages());
 
         // Remove the first image from Rp in case it is p itself
         if (Rp.begin()->second->getIndex() == p->getIndex())
@@ -196,9 +196,7 @@ std::vector<Image *> Graph::nFunc(Image &Y, int E){
 
 // get the centroid of the graph. Retrun the image that is closest to the virtual centroid
 Image *Graph::getCentroid(){
-
     return this->centroid;
-
 }
 
 // get the neighbors of an image, aka connected points in graph

@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
             if (m == 1)
                 graph_neighbours = graphNNSearch(*graph, *query_image, E, R, N);
             else
-                graph_neighbours = searchOnGraph(*graph, *query_image, 0.1 * input_set->getNumImages(), N);
+                graph_neighbours = searchOnGraph(*graph, *query_image, l, N);
             auto finish = std::chrono::high_resolution_clock::now();
             
             // get the duration, save in seconds
@@ -159,13 +159,7 @@ int main(int argc, char **argv) {
         // print final time results, and MAF
         output << "tAverageApproximate: " << graph_seconds / query_set->getNumImages() << " s" << std::endl;
         output << "tAverageTrue: " << bf_seconds / query_set->getNumImages() << " s" << std::endl;
-        output << "AAF: " << af / query_set->getNumImages() << std::endl;
         output << "MAF: " << maf << std::endl  << std::endl;
-        output << "k: " << k << std::endl;
-        output << "l: " << l << std::endl;
-        output << "E: " << E << std::endl;
-        output << "T: " << T << std::endl;
-        output << "R: " << R << std::endl << std::endl;
 
         // free the query set
         delete query_set;

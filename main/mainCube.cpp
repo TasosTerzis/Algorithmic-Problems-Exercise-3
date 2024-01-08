@@ -107,6 +107,9 @@ int main(int argc, char** argv){
             std::chrono::duration<double> bf_duration = std::chrono::duration_cast<std::chrono::duration<double>>(bf_finish - bf_start);
             bf_seconds += bf_duration.count();
 
+            // call rangeSearch
+            std::vector<Image *> range_neighbours = rangeSearch(*input_cube, *query_image, R);
+
             // calculate the maximum approximation factor
             double current_maf = nearest_neighbours.begin()->first / real_nearest_neighbours.begin()->first;
             af += current_maf;
@@ -124,17 +127,20 @@ int main(int argc, char** argv){
                 it1++, it2++, j++;
             }
 
+            // print the time needed for the search
+            output << "tCube: " << kNN_seconds << " s" << std::endl;
+            output << "tTrue: " << bf_seconds << " s" << std::endl;
+
+            // print range search results
+            output << R << "-near neighbours: " << std::endl;
+            for (int i = 0; i < range_neighbours.size(); i++)
+                output << range_neighbours[i]->getIndex() << std::endl;
         }
 
         // print final time results, and MAF
         output << "tAverageApproximate: " << kNN_seconds / query_set->getNumImages() << " s" << std::endl;
         output << "tAverageTrue: " << bf_seconds / query_set->getNumImages() << " s" << std::endl;
-        output << "AAF: " << af / query_set->getNumImages() << std::endl;
         output << "MAF: " << maf << std::endl << std::endl;
-        output << "w: " << W_CUBE << std::endl;
-        output << "k: " << k << std::endl;
-        output << "M: " << M << std::endl;
-        output << "probes: " << probes << std::endl << std::endl;
 
         // free the query set
         delete query_set;

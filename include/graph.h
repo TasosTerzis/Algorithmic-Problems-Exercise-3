@@ -10,6 +10,7 @@
 
 // We use euclidean distance for the metric
 #define METRIC 2
+#define PERCENTAGE 0.01 // percentage of images to be used for MRNG
 
 // This class represents a graph. It is a vector of lists of images, illustrating the edges of the graph.
 class Graph {

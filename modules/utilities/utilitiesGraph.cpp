@@ -61,27 +61,6 @@ std::map<double, Image *> graphNNSearch(Graph &graph, Image &query, int E, int R
                 // min distance is the first element of temp_neighbors
                 y[t] = temp_neighbors.begin()->second;
                 
-                // Calculate the y[t] of the current iteration. You can search either in S or just in "neighbours"
-                // We'll search only in neighbors
-                // double minDistance = std::numeric_limits<double>::max();
-                // for (int j = 0; j<neighbors.size(); j++){
-                //     double dist = nnDistance(*neighbors[j], query, graph.getDimension(), METRIC);
-                //     if (dist < minDistance){
-                //         minDistance = dist;
-                //         y[t] = neighbors[j];
-                //     }
-                // }
-
-                // Alternative: search in S
-                // double minDistance = std::numeric_limits<double>::max();
-                // for (auto it = S.begin(); it != S.end(); it++){
-                //     if (it->first < minDistance){
-                //         minDistance = it->first;
-                //         y[t] = it->second;
-                //     }
-                // }
-                // min distance is the first element of S
-                // y[t] = S.begin()->second;
             }
         }      
     }
@@ -113,6 +92,7 @@ std::map<double, Image *> searchOnGraph (Graph &graph, Image &q, int L, int k){
     int i=1;
     bool running = true;
     while (running) {
+
         
         // R_temp is a map of pairs "image_index, (distance, image)".
         std::map<int, std::pair<double, Image*>> R_temp;
@@ -130,15 +110,17 @@ std::map<double, Image *> searchOnGraph (Graph &graph, Image &q, int L, int k){
 
         // get the neighbors of p.
         std::list <Image*> neighbors = graph.getNeighbors(*p);
-        
+
         // insert the neighbors to R. R is a map, so if the key already exists, the new pair is not inserted
         for (auto it = neighbors.begin(); it != neighbors.end(); it++){
-            
-            // insert, check if we have reached L elements
-            R_temp.insert(std::make_pair((*it)->getIndex(), std::make_pair(nnDistance(**it, q, graph.getDimension(), METRIC), *it)));
-            if(++i==L){
-                running = false;
-                break;
+            // Check if the neighbor is not nullptr
+            if (*it){
+                // insert, check if we have reached L elements
+                R_temp.insert(std::make_pair((*it)->getIndex(), std::make_pair(nnDistance(**it, q, graph.getDimension(), METRIC), *it)));
+                if (++i == L){
+                    running = false;
+                    break;
+                }
             }
         }
 
