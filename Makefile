@@ -27,15 +27,21 @@ OBJS_GRAPH = $(OBJ)mainGraph.o  $(OBJ)dataset.o $(OBJ)graph.o\
 		$(OBJ)helpers.o $(OBJ)utilitiesGraph.o $(OBJ)utilitiesLsh.o \
 		$(OBJ)funcG.o $(OBJ)funcH.o $(OBJ)hashLSH.o $(OBJ)image.o
 
+OBJS_NET = $(OBJ)mainNet.o  $(OBJ)dataset.o $(OBJ)graph.o\
+		$(OBJ)helpers.o $(OBJ)utilitiesGraph.o $(OBJ)utilitiesLsh.o \
+		$(OBJ)funcG.o $(OBJ)funcH.o $(OBJ)hashLSH.o $(OBJ)image.o
+
 # executables
 EXEC_LSH = mainLsh
 EXEC_HYPERCUBE = mainCube
 EXEC_GRAPH = mainGraph
+EXEC_NET = mainNet
 
 # arguments 
 ARGS_LSH = -d $(INPUT)/60k_images.dat -q $(INPUT)/100from10k.dat -k 4 -L 30 -o $(OUTPUT)/lsh.log -N 1 -R 2000
 ARGS_CUBE = -d $(INPUT)/60k_images.dat -q $(INPUT)/100from10k.dat -k 14 -M 7200 -probes 8840 -o $(OUTPUT)/cube.log -N 1 -R 2500
 ARGS_GRAPH = -d $(INPUT)/10k_images.dat -q $(INPUT)/100from60k.dat -k 50 -E 35 -R 6 -N 1 -l 20 -m 1 -o $(OUTPUT)/graph.log
+ARGS_NET = -d $(INPUT)/10k_images.dat -q $(INPUT)/100from60k.dat -k 50 -E 35 -R 6 -N 1 -l 20 -m 1 -o $(OUTPUT)/graph.log
 
 # Create rules to build object files in the obj/ directory
 $(OBJ)%.o: $(MAIN)/%.cpp
@@ -58,6 +64,8 @@ $(EXEC_HYPERCUBE): $(OBJS_HYPERCUBE)
 	$(CC) $^ -o $@ $(LDFLAGS)
 $(EXEC_GRAPH): $(OBJS_GRAPH)
 	$(CC) $^ -o $@ $(LDFLAGS)
+$(EXEC_NET): $(OBJS_NET)
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 # compile & run
 runLsh: $(EXEC_LSH)
@@ -66,10 +74,12 @@ runCube: $(EXEC_HYPERCUBE)
 	time ./$(EXEC_HYPERCUBE) $(ARGS_CUBE)  
 runGraph: $(EXEC_GRAPH)
 	time ./$(EXEC_GRAPH) $(ARGS_GRAPH)
+runNet: $(EXEC_NET)
+	time ./$(EXEC_NET) $(ARGS_NET)
 
 # clean all .o, executables, logs
 clean:
-	rm -f $(OBJ)*.o $(EXEC_LSH)  $(EXEC_HYPERCUBE) $(EXEC_GRAPH) $(OUTPUT)/*.log
+	rm -f $(OBJ)*.o $(EXEC_LSH)  $(EXEC_HYPERCUBE) $(EXEC_GRAPH) $(EXEC_NET) $(OUTPUT)/*.log
 
 # run to check memory leaks
 valgrindLsh: $(EXEC_LSH)
@@ -78,3 +88,5 @@ valgrindCube: $(EXEC_HYPERCUBE)
 	valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all ./$(EXEC_HYPERCUBE) $(ARGS_CUBE)	
 valgrindGraph: $(EXEC_GRAPH)
 	valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all ./$(EXEC_GRAPH) $(ARGS_GRAPH)
+valgrindNet: $(EXEC_NET)
+	valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all ./$(EXEC_NET) $(ARGS_NET)
