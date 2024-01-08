@@ -2,7 +2,7 @@
 
 // set the values used in LSH
 #define L 5
-#define W 800
+#define W 30
 #define K 4
 
 // 1st constructor: Graph to be used for GNNS
