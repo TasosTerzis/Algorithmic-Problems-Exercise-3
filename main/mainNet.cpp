@@ -5,6 +5,8 @@ int main(int argc, char **argv) {
     // get the arguments from the command line. We set some default values in case the user doesn't give them
     srand(time(NULL));
     std::string input_file = "", query_file = "", output_file = "";
+    std::string input_file_REDUCED = "";
+    std::string query_file_REDUCED = "";
     int E = 30, R = 1, N = 1, k = 50, l = 20, m = 1;
     for (int i = 1; i < argc; i++){
         if (strcmp(argv[i], "-d") == 0)
@@ -25,6 +27,10 @@ int main(int argc, char **argv) {
             m = atoi(argv[i + 1]);
         else if (strcmp(argv[i], "-o") == 0)
             output_file = argv[i + 1];
+        else if(strcmp(argv[i], "-rd") == 0)
+            input_file_REDUCED = argv[i + 1];
+        else if(strcmp(argv[i], "-rq") == 0)
+            query_file_REDUCED = argv[i + 1];
     }
 
     // check that the arguments are valid
@@ -84,10 +90,17 @@ int main(int argc, char **argv) {
         // Create the query dataset
         DataSet *query_set = new DataSet(query_file);
 
+        // check if input_file_REDUCED exists, and if query_file_REDUCED exists
+        // if they don't exist, call poython command for the files needed
+
+        
+        if(input_file_REDUCED == ""){
+            input_file_REDUCED = input_file + "_REDUCED.dat";
+        }
+
+
         // use reduce.py to create reduced query set and dataset
         // command line looks like: python3 reduce.py –d input/10k_images.dat -q input/100from60k.dat -od input/10k_images_REDUCED.dat -oq input/100from60k_REDUCED.dat
-        std::string input_file_REDUCED = "input/dataset_REDUCED.dat";
-        std::string query_file_REDUCED = "input/query_REDUCED.dat";
         std::string command = "python3 neuralnet/reduce.py -d " + input_file + " -q " + query_file + " -od  " + input_file_REDUCED + " -oq " + query_file_REDUCED;
         printf("%s\n", command.c_str());
         system(command.c_str());
