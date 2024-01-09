@@ -53,16 +53,38 @@ int main(int argc, char **argv) {
             input_file = "";
         }
     }
+
+    while (input_file_REDUCED == ""){
+        std::cout << "Please enter the reduced input file: ";
+        std::cin >> input_file_REDUCED;
+        // check that the file was created successfully
+        std::ifstream file(input_file_REDUCED);
+        if (!file.good()) {
+            std::cout << "File not found" << std::endl;
+            input_file_REDUCED = "";
+        }
+    }
     
     // Create the dataset based on the input file
-    DataSet *input_set = new DataSet(input_file);
-
     // save the dimension and number of images of the dataset
+    DataSet *input_set = new DataSet(input_file);
     int dimension = input_set->getDimension();
     int num_images = input_set->getNumImages();
-    std::cout << "Dimension: " << dimension << std::endl;
     std::cout << "Number of images: " << num_images << std::endl;
+    std::cout << "Dimension: " << dimension << std::endl;
 
+    // save the dimension and number of images of the dataset
+    DataSet *reduced_input_set = new DataSet(input_file_REDUCED);
+    int dimension_reduced = reduced_input_set->getDimension();
+    std::cout << "Reduced Dimension: " << dimension_reduced << std::endl;
+
+    // create the graph, based on the user's choice (GNNS or MRNG)
+    Graph *graph;
+    if (m == 1)
+        graph = new Graph(*reduced_input_set, k);
+    else
+        graph = new Graph(*reduced_input_set, k, l);
+    std::cout << "\nGraph created" << std::endl;
 
     // start the loop that asks for multiple program executions
     bool running_flag = true;
@@ -74,10 +96,20 @@ int main(int argc, char **argv) {
             std::cin >> query_file;
             // check that the file was created successfully
             std::ifstream file(query_file);
-            if (!file.good())
-            {
+            if (!file.good()) {
                 std::cout << "File not found" << std::endl;
                 query_file = "";
+            }
+        }
+
+        while(query_file_REDUCED == ""){
+            std::cout << "Please enter the reduced query file: ";
+            std::cin >> query_file_REDUCED;
+            // check that the file was created successfully
+            std::ifstream file(query_file_REDUCED);
+            if (!file.good()) {
+                std::cout << "File not found" << std::endl;
+                query_file_REDUCED = "";
             }
         }
 
@@ -89,34 +121,8 @@ int main(int argc, char **argv) {
 
         // Create the query dataset
         DataSet *query_set = new DataSet(query_file);
-
-        // check if input_file_REDUCED exists, and if query_file_REDUCED exists
-        // if they don't exist, call poython command for the files needed
-
-        
-        if(input_file_REDUCED == ""){
-            input_file_REDUCED = input_file + "_REDUCED.dat";
-        }
-
-
-        // use reduce.py to create reduced query set and dataset
-        // command line looks like: python3 reduce.py –d input/10k_images.dat -q input/100from60k.dat -od input/10k_images_REDUCED.dat -oq input/100from60k_REDUCED.dat
-        std::string command = "python3 neuralnet/reduce.py -d " + input_file + " -q " + query_file + " -od  " + input_file_REDUCED + " -oq " + query_file_REDUCED;
-        printf("%s\n", command.c_str());
-        system(command.c_str());
-
         // create the reduced dataset and query set
-        DataSet *reduced_input_set = new DataSet(input_file_REDUCED);
         DataSet *reduced_query_set = new DataSet(query_file_REDUCED);
-
-        // create the graph, based on the user's choice (GNNS or MRNG)
-        Graph *graph;
-        if (m == 1)
-            graph = new Graph(*reduced_input_set, k);
-        else
-            graph = new Graph(*reduced_input_set, k, l);
-        std::cout << "\nGraph created" << std::endl;
-
 
         // print to output file
         std::ofstream output;
@@ -176,11 +182,9 @@ int main(int argc, char **argv) {
             std::chrono::duration<double> bf_duration = std::chrono::duration_cast<std::chrono::duration<double>>(bf_finish - bf_start);
             bf_seconds += bf_duration.count();
 
-
             // calculate the approximation factor (using the first image in the map)
             total_af += approx_nearest_neighbours.begin()->first / real_nearest_neighbours.begin()->first;
-
-
+ 
             // loop through the results and print them to the output file
             auto it1 = approx_nearest_neighbours.begin();
             auto it2 = real_nearest_neighbours.begin();
@@ -206,10 +210,6 @@ int main(int argc, char **argv) {
         delete query_set;
         // free the reduced query set
         delete reduced_query_set;
-        // free the reduced input set
-        delete reduced_input_set;
-
-        delete graph;
         // ask if user wants to continue 
         std::string answer;
         std::cout << "Do you want to continue? (y/n): ";
@@ -220,6 +220,10 @@ int main(int argc, char **argv) {
             query_file = "";
 
     }
+
+    // free the reduced input set
+    delete reduced_input_set;
+    delete graph;
 
     // Delete the dataset and the graph
     delete input_set;

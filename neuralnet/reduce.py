@@ -27,7 +27,7 @@ def process_file(input_file, output_file):
         f.write(struct.pack('>IIII', d_magic_number, d_num_images, 28, 1))
         f.write(output_dataset.tobytes())
 
-# command line looks like: python3 reduce.py -d input/10k_images.dat -q input/100from60k.dat -od input/10k_images_REDUCED.dat -oq input/100from60k_REDUCED.dat
+# command line looks like: python reduce.py -d ../input/10k_images.dat -q ../input/100from60k.dat -od ../input/10k_images_REDUCED.dat -oq ../input/100from60k_REDUCED.dat
 # read in command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--dataset', help='dataset file', required=False)
