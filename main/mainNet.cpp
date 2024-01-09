@@ -80,12 +80,14 @@ int main(int argc, char **argv) {
 
     // create the graph, based on the user's choice (GNNS or MRNG)
     Graph *graph;
-    if (m == 1)
+    if (m == 1) {
         graph = new Graph(*reduced_input_set, k);
-    else
+        std::cout << "\nGraph created" << std::endl;
+    }
+    else if (m == 2) {
         graph = new Graph(*reduced_input_set, k, l);
-    std::cout << "\nGraph created" << std::endl;
-
+        std::cout << "\nGraph created" << std::endl;
+    }
     // start the loop that asks for multiple program executions
     bool running_flag = true;
     while (running_flag){
@@ -129,12 +131,14 @@ int main(int argc, char **argv) {
         output.open(output_file, std::ios_base::app);
         if (m == 1)
             output << "GNNS Results" << std::endl;
-        else
+        else if(m == 2)
             output << "MRNG Results" << std::endl;
+        else
+            output << "Exhaustive Search Results" << std::endl;
 
         // for every image in the query set, call graphNNSearch / searchOnGraph for approximate values. Also call bruteForce search for true values
         // need to save the stats
-        double graph_seconds = 0;
+        double seconds = 0;
         double bf_seconds = 0;
         double total_af = 0;
         
@@ -149,20 +153,22 @@ int main(int argc, char **argv) {
 
             // calculate time needed for graph search
             auto start = std::chrono::high_resolution_clock::now();
-            std::map<double, Image *> graph_neighbours;
+            std::map<double, Image *> neighbours;
             if (m == 1)
-                graph_neighbours = graphNNSearch(*graph, *reduced_query_image, E, R, N);
+                neighbours = graphNNSearch(*graph, *reduced_query_image, E, R, N);
+            else if(m == 2)
+                neighbours = searchOnGraph(*graph, *reduced_query_image, l, N);
             else
-                graph_neighbours = searchOnGraph(*graph, *reduced_query_image, l, N);
+                neighbours = bruteForce(*reduced_input_set, *reduced_query_image, N);
             auto finish = std::chrono::high_resolution_clock::now();
             
             // get the duration, save in seconds
-            std::chrono::duration<double> graph_duration = std::chrono::duration_cast<std::chrono::duration<double>>(finish - start);
-            graph_seconds += graph_duration.count();
+            std::chrono::duration<double> duration = std::chrono::duration_cast<std::chrono::duration<double>>(finish - start);
+            seconds += duration.count();
 
-            // for each image in the graph_neighbours, get the corresponding image from the original input set, and calculate the distance
+            // for each image in the neighbours, get the corresponding image from the original input set, and calculate the distance
             std::map<double, Image *> approx_nearest_neighbours;
-            for (auto it = graph_neighbours.begin(); it != graph_neighbours.end(); it++){
+            for (auto it = neighbours.begin(); it != neighbours.end(); it++){
                 // get the index of the image
                 int index = it->second->getIndex();
                 // get the image from the original input set
@@ -173,7 +179,7 @@ int main(int argc, char **argv) {
                 approx_nearest_neighbours.insert(std::pair<double, Image *>(distance, image));
             }
 
-            // calculate time for brute force
+            // calculate time for brute force in original dimension
             auto bf_start = std::chrono::high_resolution_clock::now();
             std::map<double, Image *> real_nearest_neighbours = bruteForce(*input_set, *query_image, N);
             auto bf_finish = std::chrono::high_resolution_clock::now();
@@ -189,7 +195,7 @@ int main(int argc, char **argv) {
             auto it1 = approx_nearest_neighbours.begin();
             auto it2 = real_nearest_neighbours.begin();
             int j = 1;
-            while ((it1 !=graph_neighbours.end()) && (it2 != real_nearest_neighbours.end()))
+            while ((it1 !=neighbours.end()) && (it2 != real_nearest_neighbours.end()))
             {
                 output << "Nearest neighbours-" << j << ": " << it1->second->getIndex() << std::endl;
                 output << "distanceApproximate: " << it1->first << std::endl;
@@ -200,7 +206,7 @@ int main(int argc, char **argv) {
         }
 
         // print final time results, and MAF
-        output << "tAverageApproximate: " << graph_seconds / query_set->getNumImages() << " s" << std::endl;
+        output << "tAverageApproximate: " << seconds / query_set->getNumImages() << " s" << std::endl;
         output << "tAverageTrue: " << bf_seconds / query_set->getNumImages() << " s" << std::endl;
         //calculate the average approximation factor
         double af = total_af / query_set->getNumImages();
@@ -223,7 +229,8 @@ int main(int argc, char **argv) {
 
     // free the reduced input set
     delete reduced_input_set;
-    delete graph;
+    if(m == 1 || m == 2)
+        delete graph;
 
     // Delete the dataset and the graph
     delete input_set;
