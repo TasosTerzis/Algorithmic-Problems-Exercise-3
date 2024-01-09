@@ -82,7 +82,6 @@ int main(int argc, char** argv){
         double kNN_seconds = 0;
         double bf_seconds = 0;
         double af = 0;
-        double maf = std::numeric_limits<double>::min();
         for (int i = 0; i < query_set->getNumImages(); i++) {
 
             // get the query image
@@ -111,10 +110,7 @@ int main(int argc, char** argv){
             std::vector<Image *> range_neighbours = rangeSearch(*input_cube, *query_image, R);
 
             // calculate the maximum approximation factor
-            double current_maf = nearest_neighbours.begin()->first / real_nearest_neighbours.begin()->first;
-            af += current_maf;
-            if (current_maf > maf)
-                maf = current_maf;
+            af += nearest_neighbours.begin()->first / real_nearest_neighbours.begin()->first;
             
             // loop through the results and print them to the output file
             auto it1 = nearest_neighbours.begin();
@@ -140,7 +136,7 @@ int main(int argc, char** argv){
         // print final time results, and MAF
         output << "tAverageApproximate: " << kNN_seconds / query_set->getNumImages() << " s" << std::endl;
         output << "tAverageTrue: " << bf_seconds / query_set->getNumImages() << " s" << std::endl;
-        output << "MAF: " << maf << std::endl << std::endl;
+        output << "AF: " << af / query_set->getNumImages() << std::endl << std::endl;
 
         // free the query set
         delete query_set;

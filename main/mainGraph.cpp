@@ -104,7 +104,6 @@ int main(int argc, char **argv) {
         double graph_seconds = 0;
         double bf_seconds = 0;
         double af = 0;
-        double maf = std::numeric_limits<double>::min();
         
         for (int i = 0; i < query_set->getNumImages(); i++){
 
@@ -137,10 +136,7 @@ int main(int argc, char **argv) {
             bf_seconds += bf_duration.count();
 
             // calculate the maximum approximation factor
-            double current_maf = graph_neighbours.begin()->first / real_nearest_neighbours.begin()->first;
-            af += current_maf;
-            if (current_maf > maf)
-                maf = current_maf;
+            af += graph_neighbours.begin()->first / real_nearest_neighbours.begin()->first;
 
             // loop through the results and print them to the output file
             auto it1 = graph_neighbours.begin();
@@ -159,7 +155,7 @@ int main(int argc, char **argv) {
         // print final time results, and MAF
         output << "tAverageApproximate: " << graph_seconds / query_set->getNumImages() << " s" << std::endl;
         output << "tAverageTrue: " << bf_seconds / query_set->getNumImages() << " s" << std::endl;
-        output << "MAF: " << maf << std::endl  << std::endl;
+        output << "AF: " << af / query_set->getNumImages() << std::endl  << std::endl;
 
         // free the query set
         delete query_set;
