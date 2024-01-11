@@ -4,7 +4,9 @@ import numpy as np
 import argparse
 import struct
 
+# function to read in mnist images
 def read_mnist_images(file_path):
+
     with open(file_path, 'rb') as f:
         magic_number, num_images, rows, cols = struct.unpack('>IIII', f.read(16))
         image_size = rows * cols
@@ -12,7 +14,9 @@ def read_mnist_images(file_path):
         images = images.reshape(num_images, rows, cols)
     return images, magic_number, num_images, rows, cols
 
+# funnction to form reduced dataset and write to file
 def process_file(input_file, output_file):
+    
     dataset, d_magic_number, d_num_images, d_rows, d_cols = read_mnist_images(input_file)
     
     encoder = kr.models.load_model('./models/encoder.h5')
@@ -27,8 +31,9 @@ def process_file(input_file, output_file):
         f.write(struct.pack('>IIII', d_magic_number, d_num_images, 28, 1))
         f.write(output_dataset.tobytes())
 
-# command line looks like: python reduce.py -d ../input/10k_images.dat -q ../input/100from60k.dat -od ../input/10k_images_REDUCED.dat -oq ../input/100from60k_REDUCED.dat
-# read in command line arguments
+# main code
+        
+# command line looks like this: python reduce.py -d ../input/10k_images.dat -q ../input/100from60k.dat -od ../input/10k_images_REDUCED.dat -oq ../input/100from60k_REDUCED.dat
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--dataset', help='dataset file', required=False)
 parser.add_argument('-q', '--queryset', help='queryset file', required=False)
