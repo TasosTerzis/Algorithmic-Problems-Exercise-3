@@ -17,16 +17,21 @@ def read_mnist_images(file_path):
 # funnction to form reduced dataset and write to file
 def process_file(input_file, output_file):
     
+    # save dataset info
     dataset, d_magic_number, d_num_images, d_rows, d_cols = read_mnist_images(input_file)
     
+    # load encoder model
     encoder = kr.models.load_model('./models/encoder.h5')
     
+    # reshape and normalize dataset
     dataset = dataset.reshape(-1, 28, 28, 1)
     dataset = dataset.astype('float32') / 255.0
     
+    # encode dataset
     output_dataset = encoder.predict(dataset)
     output_dataset = (output_dataset * 255).astype('uint8')
     
+    # write to file
     with open(output_file, 'wb') as f:
         f.write(struct.pack('>IIII', d_magic_number, d_num_images, 28, 1))
         f.write(output_dataset.tobytes())
